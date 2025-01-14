@@ -12,4 +12,4 @@ Funkce:
   Tato implementace však používá PostgreSQL namísto grafové databáze Neo4j, která je využívána v projektu BetterReads.
   
 Diagram Entit a Vztahů
-![ERD](BookDB_ERD.png)
+![ERD](BetterReads.drawio.png)
