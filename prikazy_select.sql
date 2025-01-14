@@ -9,6 +9,7 @@ WHERE relkind = 'r'
     WHERE nspname = 'public'
   );
  
+select avg(n_live_tup) as row_avg from pg_stat_user_tables;
 
 
 -- Přiřadí Spisovatele k jeho knihám --
@@ -48,19 +49,21 @@ WITH RECURSIVE friend_tree AS (
     JOIN users u1 ON f.user_id = u1.id_user
     JOIN users u2 ON f.friend_id = u2.id_user
     WHERE u1.id_user = $userID
-    UNION ALL
+    UNION all
+    
     SELECT ft.friend_id, u2.name AS user_name, u3.id_user AS friend_id, u3.name AS friend_name, ft.level + 1
     FROM friend_tree ft
     JOIN friends f ON ft.friend_id = f.user_id
     JOIN users u2 ON f.user_id = u2.id_user
     JOIN users u3 ON f.friend_id = u3.id_user
     WHERE ft.level < $level
+      AND u3.id_user != $userID
 )
 SELECT DISTINCT user_name, friend_name, level
 FROM friend_tree
 WHERE user_name != friend_name
 AND level <= $level
-order by level;
+ORDER BY level;
 
 
 
@@ -83,11 +86,7 @@ FROM
 GROUP BY 
     b.id_book, b.name, b.pages, b.datePublished, b.description, s.name;
 
-   
-CREATE INDEX idx_user_id ON friends(user_id);
-CREATE INDEX idx_friend_id ON friends(friend_id);
 CREATE UNIQUE INDEX idx_unique_isbn ON book(isbn);
-CREATE UNIQUE INDEX idx_unique_email ON users(email);
 CREATE INDEX idx_fulltext_description ON book USING gin(to_tsvector('english', description));
 
 INSERT INTO users (name, email, password) VALUES
@@ -96,12 +95,13 @@ INSERT INTO users (name, email, password) VALUES
 SELECT name, description
 FROM book
 WHERE to_tsvector('english', description) @@ to_tsquery('english', 'world');
-INSERT INTO users (name, email, password) VALUES
-    ('John DOe8', 'johndoe@example.com', 'password123');
+
+INSERT INTO book (name, isbn, pages, description) VALUES
+    ('It', '9780307346612', 18,'jooo');
 
 
 CREATE OR REPLACE FUNCTION get_books_by_page_range(min_pages INTEGER, max_pages INTEGER)
-RETURNS TABLE(book_name VARCHAR(100), page_count INTEGER) AS $$
+RETURNS TABLE(book_name VARCHAR(25), page_count SMALLINT) AS $$
 BEGIN
     RETURN QUERY
     SELECT name, pages
@@ -110,7 +110,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-SELECT * FROM get_books_by_page_range(0, 200);
+SELECT * FROM get_books_by_page_range(500, 800);
 
 
 CREATE OR REPLACE PROCEDURE add_book_to_genres(
@@ -150,6 +150,11 @@ BEGIN
         RAISE EXCEPTION 'User with ID % does not own book with ID %', lender_id, target_book_id;
     END IF;
 
+	UPDATE userbook
+    SET owned = FALSE
+    WHERE user_id = lender_id AND book_id = target_book_id;
+
+
     IF EXISTS (
         SELECT 1 FROM userbook
         WHERE user_id = borrower_id AND book_id = target_book_id AND owned = TRUE
@@ -157,9 +162,13 @@ BEGIN
         RAISE EXCEPTION 'User with ID % already owns book with ID %', borrower_id, target_book_id;
     END IF;
 
-    UPDATE userbook
-    SET owned = FALSE
-    WHERE user_id = lender_id AND book_id = target_book_id;
+	 IF NOT EXISTS (
+        SELECT 1 FROM friends
+        WHERE (user_id = lender_id AND friend_id = borrower_id)
+    ) THEN
+        RAISE EXCEPTION 'Lender with ID % and borrower with ID % are not friends', lender_id, borrower_id;
+    END IF;	
+
 
     INSERT INTO userbook (user_id, book_id, owned)
     VALUES (borrower_id, target_book_id, TRUE)
@@ -179,6 +188,7 @@ $$;
 
 
 call lend_book(2, 1, 1);
+call lend_book(3, 2, 28);
 
 
 
@@ -204,29 +214,4 @@ EXECUTE FUNCTION add_symmetric_friend();
 INSERT INTO friends (user_id, friend_id) VALUES
     (1, 18);
    
-
-BEGIN;
-SELECT * FROM userbook WHERE user_id = 15 AND book_id = 36 FOR UPDATE;
-
-UPDATE userbook SET state_id = 3 WHERE user_id = 15 AND book_id = 36;
-
-COMMIT;
-
-
-BEGIN;
-SELECT pg_advisory_lock(12345);
-
-
-SELECT pg_advisory_unlock(12345);
-
-COMMIT;
-
-
-
-BEGIN;
-LOCK TABLE userbook IN EXCLUSIVE MODE;
-
-UPDATE userbook SET state_id = 2 WHERE user_id = 15 AND book_id = 36;
-
-COMMIT;
 

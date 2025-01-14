@@ -123,7 +123,7 @@ INSERT INTO series (name, description) VALUES
 
     -- A Song of Ice and Fire Series
     ('A Game of Thrones', 694, '1996-08-06', 9780553103540, 'The first book in A Song of Ice and Fire, where noble families vie for control of the Iron Throne.', 4),
-    ('A Clash of Kings', 768, '1999-02-02', 9780553108033, 'The Seven Kingdoms face turmoil and betrayal as rival factions vie for the throne.', 4),
+    ('A Clash of Kings', 768, '1999-02-02', 9780553108032, 'The Seven Kingdoms face turmoil and betrayal as rival factions vie for the throne.', 4),
     ('A Storm of Swords', 973, '2000-08-08', 9780553106633, 'The third book in the series, where alliances shift and unexpected heroes emerge.', 4),
 
     -- The Chronicles of Narnia Series
@@ -139,16 +139,17 @@ INSERT INTO series (name, description) VALUES
     ('I, Robot', 253, '1950-12-02', 9780553382563, 'A collection of stories on robots and artificial intelligence.', NULL),
 
    	-- The Dark Tower Series
-    ('The Gunslinger', 224, '1982-06-10', 9780451210845, 'The first book in Stephen King’s The Dark Tower series, introducing Roland Deschain, the last gunslinger.', 8),
-    ('The Drawing of the Three', 463, '1987-05-03', 9780451210852, 'Roland continues his journey in this second installment of The Dark Tower series, where he draws three companions.', 8),
-    ('The Waste Lands', 512, '1991-08-01', 9780451210869, 'The third book of The Dark Tower series, where Roland and his companions traverse a desolate landscape.', 8),
-    ('Wizard and Glass', 887, '1997-11-04', 9780451210876, 'The fourth book in The Dark Tower series, delving into Roland’s tragic past and a haunted love story.', 8),
+    ('The Gunslinger', 224, '1982-06-10', 9780451210842, 'The first book in Stephen King’s The Dark Tower series, introducing Roland Deschain, the last gunslinger.', 8),
+    ('The Drawing of the Three', 463, '1987-05-03', 9780451210858, 'Roland continues his journey in this second installment of The Dark Tower series, where he draws three companions.', 8),
+    ('The Waste Lands', 512, '1991-08-01', 9780451210867, 'The third book of The Dark Tower series, where Roland and his companions traverse a desolate landscape.', 8),
+    ('Wizard and Glass', 887, '1997-11-04', 9780451210875, 'The fourth book in The Dark Tower series, delving into Roland’s tragic past and a haunted love story.', 8);
 
+   INSERT INTO book (name, pages, datePublished, ISBN, description, series_id) VALUES
     -- Sherlock Holmes Series
-    ('A Study in Scarlet', 188, '1887-11-01', 9780451524935, 'Sherlock Holmes and Dr. Watson investigate a murder in this debut novel of Arthur Conan Doyle’s famous detective.', 9),
-    ('The Sign of the Four', 209, '1890-02-14', 9780553212417, 'Holmes and Watson are drawn into a mystery involving stolen treasure and a hidden pact.', 9),
-    ('The Adventures of Sherlock Holmes', 307, '1892-10-14', 9780553212417, 'A collection of twelve short stories that first introduced the world to Sherlock Holmes.', 9),
-    ('The Hound of the Baskervilles', 256, '1902-04-01', 9780553212417, 'Holmes investigates the mystery of a legendary beast terrorizing the Baskerville family.', 9),
+    ('A Study in Scarlet', 188, '1887-11-01', 9780465524935, 'Sherlock Holmes and Dr. Watson investigate a murder in this debut novel of Arthur Conan Doyle’s famous detective.', 9),
+    ('The Sign of the Four', 209, '1890-02-14', 9780586212417, 'Holmes and Watson are drawn into a mystery involving stolen treasure and a hidden pact.', 9),
+    ('The Adventures of Sherlock Holmes', 307, '1892-10-14', 9780552512418, 'A collection of twelve short stories that first introduced the world to Sherlock Holmes.', 9),
+    ('The Hound of the Baskervilles', 256, '1902-04-01', 9780553692419, 'Holmes investigates the mystery of a legendary beast terrorizing the Baskerville family.', 9),
 
     -- The Lord of the Rings Series
     ('The Fellowship of the Ring', 423, '1954-07-29', 9780261103573, 'The first part of The Lord of the Rings, where Frodo embarks on a perilous journey to destroy the One Ring.', 5),
@@ -182,11 +183,14 @@ INSERT INTO series (name, description) VALUES
     ('Bird Box', 262, '2014-03-27', 9780062259653, 'In a post-apocalyptic world, survivors must avoid looking at mysterious entities.'),
     ('World War Z', 342, '2006-09-12', 9780307346612, 'An oral history of the global war the evil brain-chewers came within a hair of winning.'),
     ('House of Leaves', 709, '2000-03-07', 9780375703768, 'A novel about a family whose house is impossibly larger on the inside than it is on the outside.'),
-    ('The Exorcist', 403, '1971-10-01', 9780061007224, 'A tale of demonic possession that terrifies its readers.'),
-    ('Frankenstein', 280, '1818-01-01', 9780486282114, 'A scientist’s creation comes to life with deadly consequences.'),
-    ('It', 1138, '1986-09-15', 9781501142970, 'A group of childhood friends face an ancient evil that resurfaces to terrorize their hometown.'),
-    ('Dracula', 418, '1897-05-26', 9780486411095, 'The classic tale of the vampire Count Dracula, who terrorizes Victorian England.'),
-    ('The Shining', 447, '1977-01-28', 9780385121675, 'A family moves into an isolated hotel where supernatural forces drive the father into violence.'),
+    ('The Exorcist', 403, '1971-10-01', 9780061007224, 'A tale of demonic possession that terrifies its readers.');
+   
+   
+   INSERT INTO book (name, pages, datePublished, ISBN, description) VALUES
+    ('Frankenstein', 280, '1818-01-01', 9780486282115, 'A scientist’s creation comes to life with deadly consequences.'),
+    ('It', 1138, '1986-09-15', 9781501142978, 'A group of childhood friends face an ancient evil that resurfaces to terrorize their hometown.'),
+    ('Dracula', 418, '1897-05-26', 9780486411092, 'The classic tale of the vampire Count Dracula, who terrorizes Victorian England.'),
+    ('The Shining', 447, '1977-01-28', 9780385121671, 'A family moves into an isolated hotel where supernatural forces drive the father into violence.'),
     
     -- Non-Fiction
     ('The Immortal Life of Henrietta Lacks', 381, '2010-02-02', 9781400052172, 'The true story of a woman whose cells transformed medical research.'),
@@ -327,68 +331,8 @@ INSERT INTO genrebook (genre_id, book_id) VALUES
     (10, 70);                  -- Silent Spring
 
     
-    INSERT INTO writerGenre (genre_id, writer_id) VALUES
-    (1, 1),    -- J.K. Rowling, Fantasy
-    (1, 2),    -- Brandon Sanderson, Fantasy
-    (2, 2),    -- Brandon Sanderson, Science Fiction
-    (1, 3),    -- George R.R. Martin, Fantasy
-    (1, 4),    -- C.S. Lewis, Fantasy
-    (2, 5),    -- Frank Herbert, Science Fiction
-    (2, 6),    -- Orson Scott Card, Science Fiction
-    (1, 7),    -- Neil Gaiman, Fantasy
-    (9, 7),    -- Neil Gaiman, Adventure
-    (7, 8),    -- Harper Lee, Historical Fiction
-    (2, 9),    -- Isaac Asimov, Science Fiction
-    (1, 10),   -- Stephen King, Fantasy
-    (4, 10),   -- Stephen King, Horror
-    (3, 11),   -- Arthur Conan Doyle, Mystery
-    (1, 12),   -- J.R.R. Tolkien, Fantasy
-    (9, 12),   -- J.R.R. Tolkien, Adventure
-    (7, 13),   -- George Orwell, Historical Fiction
-    (5, 14),   -- Jane Austen, Romance
-    (7, 14),   -- Jane Austen, Historical Fiction
-    (7, 15),   -- J.D. Salinger, Historical Fiction
-    (7, 16),   -- F. Scott Fitzgerald, Historical Fiction
-    (7, 17),   -- Herman Melville, Historical Fiction
-    (9, 18),   -- Cormac McCarthy, Adventure
-    (2, 19),   -- Aldous Huxley, Science Fiction
-    (7, 20),   -- Paulo Coelho, Historical Fiction
-    (1, 21),   -- Mary Shelley, Fantasy
-    (4, 21),   -- Mary Shelley, Horror
-    (3, 22),   -- Oscar Wilde, Mystery
-    (7, 23),   -- Gabriel Garcia Marquez, Historical Fiction
-    (6, 24),   -- Kurt Vonnegut, Thriller
-    (7, 25),   -- Leo Tolstoy, Historical Fiction
-    (7, 26),   -- Fyodor Dostoevsky, Historical Fiction
-    (1, 27),   -- Yann Martel, Fantasy
-    (7, 28),   -- Markus Zusak, Historical Fiction
-    (6, 29),   -- Joseph Heller, Thriller
-    (7, 30),   -- Toni Morrison, Historical Fiction
-    (4, 31),   -- Shirley Jackson, Horror
-    (4, 32),   -- Josh Malerman, Horror
-    (4, 33),   -- Max Brooks, Horror
-    (4, 34),   -- Mark Z. Danielewski, Horror
-    (4, 35),   -- William Peter Blatty, Horror
-    (4, 36),   -- Stephen King, Horror
-    (1, 36),   -- Stephen King, Fantasy
-    (4, 37),   -- Bram Stoker, Horror
-    (10, 38),  -- Rebecca Skloot, Non-Fiction
-    (8, 39),   -- Michelle Obama, Biography
-    (10, 40),  -- Tara Westover, Non-Fiction
-    (10, 41),  -- Yuval Noah Harari, Non-Fiction
-    (10, 42),  -- David McCullough, Non-Fiction
-    (6, 43),   -- Truman Capote, Thriller
-    (7, 44),   -- Laura Hillenbrand, Historical Fiction
-    (6, 45),   -- Erik Larson, Thriller
-    (7, 46),   -- Anne Frank, Historical Fiction
-    (10, 47),  -- Rachel Carson, Non-Fiction
-    (3, 48),   -- Agatha Christie, Mystery
-    (3, 49),   -- Dashiell Hammett, Mystery
-    (6, 50),   -- Gillian Flynn, Thriller
-    (6, 51);   -- Stieg Larsson, Thriller
 
-    
-    
+        
    INSERT INTO writerBook (writer_id, book_id) VALUES
     (1, 1),   -- J.K. Rowling - Harry Potter and the Philosopher's Stone
     (1, 2),   -- J.K. Rowling - Harry Potter and the Chamber of Secrets

@@ -1,42 +1,40 @@
 CREATE TABLE users (
     id_user SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    email VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(50) NOT NULL
+    name VARCHAR(40) NOT NULL,
+    email VARCHAR(40) NOT NULL UNIQUE,
+    password VARCHAR(25) NOT NULL
 );
 
 CREATE TABLE genre (
-    id_genre SERIAL PRIMARY KEYINSERT INTO users (name, email, password) VALUES
-    ('John Doe', 'johndoe@example.com', 'password123'),INSERT INTO users (name, email, password) VALUES
-    ('John Doe', 'johndoe@example.com', 'password123'),,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    description VARCHAR(500)
+    id_genre SERIAL primary key,
+    name VARCHAR(25) NOT NULL UNIQUE,
+    description VARCHAR(1000)
 );
 
 CREATE TABLE series (
     id_series SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description VARCHAR(500)
+    name VARCHAR(40) NOT NULL,
+    description VARCHAR(1000)
 );
 
 CREATE TABLE writer (
     id_writer SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    surname VARCHAR(50) NOT NULL
+    name VARCHAR(25) NOT NULL,
+    surname VARCHAR(25) NOT NULL
 );
 
 CREATE TABLE bookClub (
     id_bookClub SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE
+    name VARCHAR(40) NOT NULL UNIQUE
 );
 
 CREATE TABLE book (
     id_book SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    pages INTEGER NOT NULL CHECK (pages > 0),
-    datePublished DATE,
-    ISBN BIGINT NOT NULL,
-    description VARCHAR(500),
+    name VARCHAR(80) NOT NULL,
+    pages SMALLINT NOT NULL CHECK (pages > 0),
+    datePublished DATE default nuLL,
+    ISBN BIGINT NOT null unique,
+    description VARCHAR(1000) default null,
     series_id INTEGER DEFAULT NULL,
     FOREIGN KEY (series_id)
         REFERENCES series(id_series)
@@ -45,11 +43,11 @@ CREATE TABLE book (
 );
 
 create TABLE state (
-    id_state SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL unique
+    id_state SMALLSERIAL PRIMARY KEY,
+    name VARCHAR(12) NOT NULL unique
 );
 
-CREATE TABLE friends (
+create TABLE friends (
     user_id INTEGER,
     friend_id INTEGER,
     PRIMARY KEY (user_id, friend_id),
@@ -91,25 +89,13 @@ CREATE TABLE bookClubUser (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE writerGenre (
-    genre_id INTEGER,
-    writer_id INTEGER,
-    PRIMARY KEY (genre_id, writer_id),
-    FOREIGN KEY (genre_id)
-        REFERENCES genre(id_genre)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY (writer_id)
-        REFERENCES writer(id_writer)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
 
 CREATE TABLE userBook (
     user_id INTEGER,
     book_id INTEGER,
-    rating INTEGER DEFAULT NULL CHECK (rating BETWEEN 0 AND 5),
+    rating SMALLINT DEFAULT NULL CHECK (rating BETWEEN 1 AND 5),
     review VARCHAR(500) DEFAULT NULL,
+    owned BOOLEAN DEFAULT false,
     state_id INTEGER DEFAULT NULL,
     FOREIGN KEY (state_id)
         REFERENCES state(id_state)
@@ -126,13 +112,10 @@ CREATE TABLE userBook (
         ON UPDATE CASCADE
 );
 
-ALTER TABLE userbook ADD COLUMN owned BOOLEAN DEFAULT FALSE;
-
-
 
 CREATE TABLE writerBook (
-    writer_id INTEGER,
-    book_id INTEGER,
+    writer_id INTEGER not null,
+    book_id INTEGER not null,
     PRIMARY KEY (writer_id, book_id),
     FOREIGN KEY (writer_id)
         REFERENCES writer(id_writer)
