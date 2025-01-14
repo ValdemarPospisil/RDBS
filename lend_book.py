@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import time
 from colorama import init, Fore, Style
 
-engine = create_engine('postgresql://dbuser:dbpwd@localhost/postgres')  # Adjust the connection string as needed
+engine = create_engine('postgresql://dbuser:dbpwd@localhost/postgres')  
 metadata = MetaData()
 
 userbook = Table('userbook', metadata,
@@ -21,7 +21,6 @@ session = Session()
 
 def lend_book(lender_id, borrower_id, target_book_id):
     try:
-        # Check if the lender owns the book
         query = select(userbook.c.user_id, userbook.c.book_id) \
             .where(userbook.c.user_id == lender_id) \
             .where(userbook.c.book_id == target_book_id) \
@@ -33,7 +32,6 @@ def lend_book(lender_id, borrower_id, target_book_id):
             print(f"Lender {lender_id} does not own book {target_book_id}")
             return
 
-        # Check if the borrower already owns the book
         query = select(userbook.c.user_id, userbook.c.book_id) \
             .where(userbook.c.user_id == borrower_id) \
             .where(userbook.c.book_id == target_book_id) \
@@ -54,14 +52,12 @@ def lend_book(lender_id, borrower_id, target_book_id):
         if not result:
             raise Exception(f"Lender {lender_id} and borrower {borrower_id} are not friends")
 
-        # Update lender ownership to False
         update_lender = update(userbook) \
             .where(userbook.c.user_id == lender_id) \
             .where(userbook.c.book_id == target_book_id) \
             .values(owned=False)
         session.execute(update_lender)
 
-        # Insert borrower ownership or update if exists using raw SQL
         raw_sql = text("""
             INSERT INTO userBook (user_id, book_id, owned)
             VALUES (:user_id, :book_id, :owned)
@@ -70,7 +66,6 @@ def lend_book(lender_id, borrower_id, target_book_id):
         """)
         session.execute(raw_sql, {'user_id': borrower_id, 'book_id': target_book_id, 'owned': True})
 
-        # Commit the transaction
         session.commit()
         
 

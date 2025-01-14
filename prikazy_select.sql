@@ -151,8 +151,7 @@ BEGIN
     END IF;
 
 	UPDATE userbook
-    SET owned = FALSE
-    WHERE user_id = lender_id AND book_id = target_book_id;
+    SET owned = FALSE WHERE user_id = lender_id AND book_id = target_book_id;
 
 
     IF EXISTS (
