@@ -3,8 +3,8 @@ from sqlalchemy import create_engine, Table, Column, Integer, Boolean, MetaData,
 from sqlalchemy.orm import sessionmaker
 import time
 from colorama import init, Fore, Style
-
-engine = create_engine('postgresql://dbuser:dbpwd@localhost/postgres')  
+init(autoreset=True)
+engine = create_engine('postgresql://dbuser:dbpwd@localhost/postgres') 
 metadata = MetaData()
 
 userbook = Table('userbook', metadata,
@@ -29,8 +29,7 @@ def lend_book(lender_id, borrower_id, target_book_id):
         result = session.execute(query).fetchone()
 
         if not result:
-            print(f"Lender {lender_id} does not own book {target_book_id}")
-            return
+            raise Exception(f"Lender {lender_id} does not own book {target_book_id}")
 
         query = select(userbook.c.user_id, userbook.c.book_id) \
             .where(userbook.c.user_id == borrower_id) \
@@ -40,8 +39,7 @@ def lend_book(lender_id, borrower_id, target_book_id):
         result = session.execute(query).fetchone()
 
         if result:
-            print(f"Borrower {borrower_id} already owns the book {target_book_id}")
-            return
+            raise Exception(f"Borrower {borrower_id} already owns the book {target_book_id}")
         
         query = select(friends.c.user_id, friends.c.friend_id) \
             .where((friends.c.user_id == lender_id) & (friends.c.friend_id == borrower_id))
@@ -66,6 +64,8 @@ def lend_book(lender_id, borrower_id, target_book_id):
         """)
         session.execute(raw_sql, {'user_id': borrower_id, 'book_id': target_book_id, 'owned': True})
 
+        # Commit the transaction
+        print("Attempting to commit the transaction...")
         session.commit()
         
 
@@ -82,12 +82,10 @@ def lend_book(lender_id, borrower_id, target_book_id):
         """)
 
         print(Fore.YELLOW + Style.BRIGHT + "✨ Hooray! Book lent with joy! ✨\n")
-
     except Exception as e:
+        print(Fore.RED + "Inside exception block")
         session.rollback()
-        print(Fore.RED + f"An error occurred: {e}")
-
-
+        print(Fore.RED + f"An error occurred: {e}" + Style.RESET_ALL)
 
 def prompt_and_lend_book():
     lender_id = int(input("Enter the lender's user ID: "))

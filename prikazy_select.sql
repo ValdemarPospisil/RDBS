@@ -13,8 +13,8 @@ select avg(n_live_tup) as row_avg from pg_stat_user_tables;
 
 
 -- Přiřadí Spisovatele k jeho knihám --
-SELECT 
-    CONCAT(writer.name || ' ' || writer.surname) AS writer_fullname,
+explain analyze SELECT 
+    CONCAT(writer.name, ' ', writer.surname) AS writer_fullname,
     (SELECT book.name 
      FROM book 
      WHERE book.id_book = writerbook.book_id) AS book_name
@@ -22,14 +22,30 @@ FROM writer
 JOIN writerbook ON writer.id_writer = writerbook.writer_id
 ORDER BY writer_fullname;
 
+explain analyze SELECT 
+    CONCAT(writer.name, ' ', writer.surname) AS writer_fullname,
+    book.name AS book_name
+FROM writer
+JOIN writerbook ON writer.id_writer = writerbook.writer_id
+JOIN book ON writerbook.book_id = book.id_book
+ORDER BY writer_fullname;
+
 
 -- Autor a počet knih které napsal --
-select writer.name || ' ' || writer.surname AS writer_fullname,
+explain analyze select writer.name || ' ' || writer.surname AS writer_fullname,
        (SELECT COUNT(*) 
         FROM writerbook 
         WHERE writerbook.writer_id = writer.id_writer) AS book_count
 FROM writer
 order by book_count desc;
+
+explain analyze SELECT 
+    writer.name || ' ' || writer.surname AS writer_fullname,
+    COUNT(writerbook.book_id) AS book_count
+FROM writer
+JOIN writerbook ON writer.id_writer = writerbook.writer_id
+GROUP BY writer.id_writer, writer.name, writer.surname
+ORDER BY book_count DESC;
 
 
 -- průměrný hodnocení knihy a počet hodnocení --
@@ -38,7 +54,7 @@ SELECT book.name AS book_name,
        COUNT(rating) AS rating_count
 FROM userBook
 JOIN book ON userBook.book_id = book.id_book
-WHERE userBook.rating is not null
+WHERE userBook.rating 
 GROUP BY book.name
 ORDER BY average_rating DESC, rating_count DESC;
 
@@ -49,7 +65,7 @@ WITH RECURSIVE friend_tree AS (
     JOIN users u1 ON f.user_id = u1.id_user
     JOIN users u2 ON f.friend_id = u2.id_user
     WHERE u1.id_user = $userID
-    UNION all
+    union ALL
     
     SELECT ft.friend_id, u2.name AS user_name, u3.id_user AS friend_id, u3.name AS friend_name, ft.level + 1
     FROM friend_tree ft
@@ -59,15 +75,13 @@ WITH RECURSIVE friend_tree AS (
     WHERE ft.level < $level
       AND u3.id_user != $userID
 )
-SELECT DISTINCT user_name, friend_name, level
+SELECT distinct user_name, friend_name, level
 FROM friend_tree
-WHERE user_name != friend_name
-AND level <= $level
 ORDER BY level;
 
 
 
-CREATE VIEW book_details AS
+CREATE or replace VIEW book_details AS
 SELECT 
     b.name AS book_name,
     b.pages AS page_count,
@@ -79,7 +93,7 @@ SELECT
 FROM 
     book b
     LEFT JOIN genreBook gb ON b.id_book = gb.book_id
-    LEFT JOIN genre g ON gb.genre_id = g.id_genre
+    left JOIN genre g ON gb.genre_id = g.id_genre
     LEFT JOIN writerBook wb ON b.id_book = wb.book_id
     LEFT JOIN writer w ON wb.writer_id = w.id_writer
     LEFT JOIN series s ON b.series_id = s.id_series
@@ -87,17 +101,24 @@ GROUP BY
     b.id_book, b.name, b.pages, b.datePublished, b.description, s.name;
 
 CREATE UNIQUE INDEX idx_unique_isbn ON book(isbn);
+CREATE UNIQUE INDEX idx_unique_username ON users(name);
 CREATE INDEX idx_fulltext_description ON book USING gin(to_tsvector('english', description));
 
-INSERT INTO users (name, email, password) VALUES
-    ('John DOe8', 'johndoe@example.com', 'password123');
 
-SELECT name, description
+explain analyze SELECT name, description
 FROM book
 WHERE to_tsvector('english', description) @@ to_tsquery('english', 'world');
 
 INSERT INTO book (name, isbn, pages, description) VALUES
     ('It', '9780307346612', 18,'jooo');
+
+explain analyze select name, isbn, pages
+from book
+where isbn = '9780307346612';
+
+explain analyze select name, isbn, pages
+from book
+where name = 'World War Z';
 
 
 CREATE OR REPLACE FUNCTION get_books_by_page_range(min_pages INTEGER, max_pages INTEGER)
@@ -112,30 +133,46 @@ $$ LANGUAGE plpgsql;
 
 SELECT * FROM get_books_by_page_range(500, 800);
 
-
 CREATE OR REPLACE PROCEDURE add_book_to_genres(
     p_book_id INTEGER,
-    p_genre_ids INTEGER[]
+    p_genre_names TEXT[]
 )
 LANGUAGE plpgsql AS $$
 DECLARE
+    genre_name_cursor CURSOR FOR SELECT UNNEST(p_genre_names) AS genre_name;
+    genre_name TEXT;
     genre_id INTEGER;
 BEGIN
-    FOREACH genre_id IN ARRAY p_genre_ids LOOP
+    OPEN genre_name_cursor;
+
+    LOOP
+        FETCH genre_name_cursor INTO genre_name;
+        EXIT WHEN NOT FOUND;
+
+        SELECT id_genre INTO genre_id
+        FROM genre
+        WHERE name = genre_name;
+
+        IF NOT FOUND THEN
+            INSERT INTO genre (name) VALUES (genre_name) RETURNING id_genre INTO genre_id;
+        END IF;
+
         INSERT INTO genrebook (book_id, genre_id)
         VALUES (p_book_id, genre_id)
         ON CONFLICT DO NOTHING;
     END LOOP;
     
-    RAISE NOTICE 'Kniha byla úspěšně přidána do všech žánrů.';
+    CLOSE genre_name_cursor;
+
+    RAISE NOTICE 'Book successfully linked to all provided genres, adding new ones if necessary.';
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE WARNING 'Došlo k chybě při přidávání knihy do žánrů: %', SQLERRM;
+        RAISE WARNING 'An error occurred: %', SQLERRM;
         RAISE;
 END;
 $$;
 
-CALL add_book_to_genres(1, ARRAY[2, 5, 4]);
+CALL add_book_to_genres(2, ARRAY['Horror', 'Fiction', 'Mystery']);
 
 
 
@@ -211,6 +248,6 @@ FOR EACH ROW
 EXECUTE FUNCTION add_symmetric_friend();
 
 INSERT INTO friends (user_id, friend_id) VALUES
-    (1, 18);
+    (1, 20);
    
 
